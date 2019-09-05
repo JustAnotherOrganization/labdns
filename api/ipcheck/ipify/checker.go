@@ -1,7 +1,7 @@
 package ipify
 
 import (
-	"github.com/justanotherorganization/labdns/api/ipcheck"
+	"justanother.org/labdns/api/ipcheck"
 	"github.com/rdegges/go-ipify"
 )
 

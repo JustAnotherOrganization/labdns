@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/ingcr3at1on/x/sigctx"
-	"github.com/justanotherorganization/labdns/api/dns"
-	do "github.com/justanotherorganization/labdns/api/dns/digitalocean"
-	"github.com/justanotherorganization/labdns/api/ipcheck"
-	"github.com/justanotherorganization/labdns/api/ipcheck/ipify"
-	"github.com/justanotherorganization/labdns/cmd/internal"
 	flag "github.com/spf13/pflag"
+	"justanother.org/labdns/api/dns"
+	"justanother.org/labdns/api/dns/cloudflare"
+	do "justanother.org/labdns/api/dns/digitalocean"
+	"justanother.org/labdns/api/ipcheck"
+	"justanother.org/labdns/api/ipcheck/ipify"
+	"justanother.org/labdns/cmd/internal"
 )
 
 // FIXME: consider using the heap less...
@@ -20,12 +22,16 @@ var (
 	accessToken *string
 	domain      *string
 	subname     *string
+	provider    *string
+	email       *string
 )
 
 func init() {
 	accessToken = flag.StringP(`token`, `t`, ``, `Provider access token`)
 	domain = flag.StringP(`domain`, `d`, ``, `Provider managed domain`)
 	subname = flag.StringP(`subname`, `s`, ``, `Domain subname`)
+	provider = flag.StringP(`provider`, `p`, ``, `Provider name`)
+	email = flag.StringP(`email`, `e`, ``, `Provider user email`)
 
 	flag.Parse()
 
@@ -40,7 +46,7 @@ func setLogger(logger internal.Logger) {
 
 func main() {
 	ctx := sigctx.FromContext(context.Background())
-	internal.Fatal(sigctx.StartWithContext(ctx, func() error {
+	internal.Fatal(sigctx.StartWithContext(ctx, func(ctx context.Context) error {
 		return func() error {
 			if err := checkAndUpdate(ctx); err != nil {
 				return err
@@ -95,11 +101,21 @@ func doCheck(c ipcheck.Checker) (string, error) {
 }
 
 func getProvider(ctx context.Context) (dns.Provider, error) {
-	// More providers would go here.
-	return do.New(ctx, &do.Config{
-		Domain:      *domain,
-		AccessToken: *accessToken,
-	})
+	switch *provider {
+	case `cloudflare`:
+		return cloudflare.New(ctx, &cloudflare.Config{
+			Domain: *domain,
+			APIKey: *accessToken,
+			Email:  *email,
+		})
+	case `digitalocean`, `do`:
+		return do.New(ctx, &do.Config{
+			Domain:      *domain,
+			AccessToken: *accessToken,
+		})
+	default:
+		return nil, errors.New("unrecognized provider string")
+	}
 }
 
 func doUpdate(ctx context.Context, p dns.Provider, ip string) error {

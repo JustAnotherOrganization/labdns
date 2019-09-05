@@ -6,11 +6,13 @@ import (
 	"sync"
 
 	"github.com/digitalocean/godo"
-	"github.com/justanotherorganization/labdns/api/dns"
 	"golang.org/x/oauth2"
+	"justanother.org/labdns/api/dns"
 )
 
 // FIXME: consider monitoring DO responses for API backoff.
+// I don't actually remember if this expects the name to be the full name or partial, but I think it's partial..
+// if not it should be updated to match the cloudflare functionality lol...
 
 // Config is the provider configuration.
 type Config struct {

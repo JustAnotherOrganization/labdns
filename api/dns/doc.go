@@ -1,2 +1,2 @@
 // Package dns provides API functionality for DNS providers.
-package dns // import "github.com/justanotherorganization/labdns/api/dns"
+package dns // import "justanother.org/labdns/api/dns"

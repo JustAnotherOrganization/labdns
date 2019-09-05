@@ -1,2 +1,2 @@
 // Package ipcheck provides API access to an external IP checking service.
-package ipcheck // import "github.com/justanotherorganization/labdns/api/ipcheck"
+package ipcheck // import "justanother.org/labdns/api/ipcheck"
