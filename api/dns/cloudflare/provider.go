@@ -5,19 +5,14 @@ import (
 	"errors"
 	"sync"
 
-	cloudflare "github.com/cloudflare/cloudflare-go"
+	"github.com/cloudflare/cloudflare-go"
 	"justanother.org/labdns/api/dns"
 )
 
-// Config is the provider configuration.
 type Config struct {
-	// Domain is the name of the domain to update.
-	Domain string
-	// Email is the Cloudflare user email.
-	Email string
-	// APIKey is the Cloudflare API key.
-	APIKey string
-	// Proxied set to true to enable cloudflare proxy.
+	Domain  string
+	Email   string
+	APIKey  string
 	Proxied bool
 }
 
@@ -39,8 +34,7 @@ type _cloudflare struct {
 	recordIDs map[string]string
 }
 
-// New returns a new dns.Provider.
-func New(ctx context.Context, cfg *Config) (dns.Provider, error) {
+func New(cfg *Config) (dns.Provider, error) {
 	if err := cfg.validate(); err != nil {
 		return nil, err
 	}
@@ -63,7 +57,7 @@ func New(ctx context.Context, cfg *Config) (dns.Provider, error) {
 	}, nil
 }
 
-func (p *_cloudflare) lookupRecordID(ctx context.Context, name string) (string, error) {
+func (p *_cloudflare) lookupRecordID(name string) (string, error) {
 	rs, err := p.DNSRecords(p.zoneID, cloudflare.DNSRecord{})
 	if err != nil {
 		return ``, err
@@ -78,7 +72,6 @@ func (p *_cloudflare) lookupRecordID(ctx context.Context, name string) (string, 
 	return ``, nil
 }
 
-// UpdateRecord updates the given DNS record.
 func (p *_cloudflare) UpdateRecord(ctx context.Context, name, ip string) error {
 	if name == `` {
 		return errors.New(`domain subname cannot be empty`)
@@ -96,7 +89,7 @@ func (p *_cloudflare) UpdateRecord(ctx context.Context, name, ip string) error {
 	id, ok := p.recordIDs[name]
 	if !ok {
 		var err error // don't shadow id
-		id, err = p.lookupRecordID(ctx, _name)
+		id, err = p.lookupRecordID(_name)
 		if err != nil {
 			return err
 		}
