@@ -1,6 +1,7 @@
 package ipify_test
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -16,7 +17,7 @@ func TestGetIP(t *testing.T) {
 	}
 
 	ch, _ := New()
-	ip, err := ch.GetIP()
+	ip, err := ch.GetIP(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, knownIP, ip)
 }

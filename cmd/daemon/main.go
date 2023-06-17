@@ -85,7 +85,7 @@ func getChecker() (ipcheck.Checker, error) {
 }
 
 func doCheck(c ipcheck.Checker) (string, error) {
-	return c.GetIP()
+	return c.GetIP(context.Background())
 }
 
 func getProvider(ctx context.Context) (dns.Provider, error) {
