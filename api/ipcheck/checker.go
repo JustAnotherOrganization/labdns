@@ -1,5 +1,7 @@
 package ipcheck
 
+import "context"
+
 type Checker interface {
-	GetIP() (string, error)
+	GetIP(ctx context.Context) (string, error)
 }
